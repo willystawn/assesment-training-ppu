@@ -1,0 +1,6 @@
+{
+  "name": "💎Aplikasi Penilaian Training",
+  "description": "Aplikasi web untuk seorang Trainer untuk mencatat progress harian peserta training. Aplikasi ini memungkinkan manajemen batch training, peserta, dan master task.",
+  "requestFramePermissions": [],
+  "prompt": ""
+}
