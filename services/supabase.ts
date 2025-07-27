@@ -1,4 +1,5 @@
 
+
 import { createClient } from '@supabase/supabase-js';
 import { Training, TrainingData, Participant, ParticipantData, MasterTask, MasterTaskData, CompletedTask, CompletedTaskData, ParticipantRole, Justification, JustificationData, FinalJustification, FinalJustificationData, ParticipantScore, ParticipantScoreData } from '../types';
 
@@ -8,37 +9,30 @@ export type Database = {
       trainings: {
         Row: Training;
         Insert: TrainingData;
-        Update: Partial<TrainingData>;
       };
       participants: {
         Row: Participant;
         Insert: ParticipantData;
-        Update: Partial<ParticipantData>;
       };
       master_tasks: {
         Row: MasterTask;
         Insert: MasterTaskData;
-        Update: Partial<MasterTaskData>;
       };
       completed_tasks: {
         Row: CompletedTask;
         Insert: CompletedTaskData;
-        Update: Partial<CompletedTaskData>;
       };
       justifications: {
         Row: Justification;
         Insert: JustificationData;
-        Update: Partial<JustificationData>;
       };
       final_justifications: {
         Row: FinalJustification;
         Insert: FinalJustificationData;
-        Update: Partial<FinalJustificationData>;
       };
       participant_scores: {
         Row: ParticipantScore;
         Insert: ParticipantScoreData;
-        Update: Partial<ParticipantScoreData>;
       };
     };
     Views: {

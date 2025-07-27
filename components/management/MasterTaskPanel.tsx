@@ -164,7 +164,7 @@ const MasterTaskPanel: React.FC<MasterTaskPanelProps> = ({
                             {paginatedMasterTasks.map(task => (
                                 <tr key={task.id} className="odd:bg-white even:bg-gray-50 dark:odd:bg-gray-800 dark:even:bg-gray-800/60">
                                     <td className="px-6 py-4 whitespace-nowrap text-base text-center text-gray-500 dark:text-gray-400">{task.day_number}</td>
-                                    <td className="px-6 py-4 text-base font-medium text-gray-900 dark:text-gray-100">
+                                    <td className="px-6 py-4 text-base font-medium text-gray-900 dark:text-gray-100 max-w-[200px] truncate" title={task.backlog}>
                                         {task.backlog ? (
                                             <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getBacklogColor(task.backlog)}`}>
                                                 {task.backlog}
