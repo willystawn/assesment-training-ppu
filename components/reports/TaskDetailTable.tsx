@@ -39,11 +39,18 @@ const TaskDetailTable: React.FC<TaskDetailTableProps> = ({ tasks }) => {
                                 <td className="px-6 py-4 whitespace-nowrap text-sm text-center font-semibold text-gray-800 dark:text-gray-200">{task.day_number}</td>
                                 <td className="px-6 py-4 text-sm">
                                     <p className="font-medium text-gray-900 dark:text-gray-100">{task.user_story}</p>
-                                    {task.backlog && 
-                                        <span className={`mt-1 inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${getBacklogColor(task.backlog)}`}>
-                                            {task.backlog}
-                                        </span>
-                                    }
+                                    <div className="flex flex-wrap items-center gap-2 mt-1">
+                                        {task.backlog && 
+                                            <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${getBacklogColor(task.backlog)}`}>
+                                                {task.backlog}
+                                            </span>
+                                        }
+                                        {task.category && 
+                                            <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${getBacklogColor(task.category)}`}>
+                                                {task.category}
+                                            </span>
+                                        }
+                                    </div>
                                 </td>
                                 <td className="px-6 py-4 whitespace-nowrap text-sm text-center font-bold text-gray-700 dark:text-gray-300">{task.target_points}</td>
                                 <td className="px-6 py-4 whitespace-nowrap text-sm text-center">

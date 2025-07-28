@@ -100,7 +100,7 @@ const MasterTaskPanel: React.FC<MasterTaskPanelProps> = ({
                 }
 
                 const newTasks: MasterTaskData[] = json.map((row, index) => {
-                    const { day_number, backlog, user_story, role, target_points } = row;
+                    const { day_number, backlog, user_story, role, target_points, category } = row;
                     if (!day_number || !user_story || !role || target_points === undefined) {
                         throw new Error(`Baris ${index + 2}: Kolom wajib (day_number, user_story, role, target_points) tidak boleh kosong.`);
                     }
@@ -112,7 +112,8 @@ const MasterTaskPanel: React.FC<MasterTaskPanelProps> = ({
                         backlog: backlog || '',
                         user_story: String(user_story),
                         role: role as ParticipantRole,
-                        target_points: Number(target_points)
+                        target_points: Number(target_points),
+                        category: category || '',
                     };
                 });
                 
@@ -155,7 +156,7 @@ const MasterTaskPanel: React.FC<MasterTaskPanelProps> = ({
                     <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
                         <thead className="bg-gray-100 dark:bg-gray-800/80">
                             <tr>
-                                {["Day", "Backlog", "User Story", "Posisi", "Poin", "Aksi"].map(header => (
+                                {["Day", "Backlog", "Kategori", "User Story", "Posisi", "Poin", "Aksi"].map(header => (
                                     <th key={header} scope="col" className="px-6 py-3 text-left text-sm font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider whitespace-nowrap">{header}</th>
                                 ))}
                             </tr>
@@ -168,6 +169,13 @@ const MasterTaskPanel: React.FC<MasterTaskPanelProps> = ({
                                         {task.backlog ? (
                                             <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getBacklogColor(task.backlog)}`}>
                                                 {task.backlog}
+                                            </span>
+                                        ) : <span className="text-gray-400 dark:text-gray-500">-</span>}
+                                    </td>
+                                    <td className="px-6 py-4 text-base text-gray-500 dark:text-gray-400 max-w-[150px] truncate" title={task.category}>
+                                        {task.category ? (
+                                             <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getBacklogColor(task.category)}`}>
+                                                {task.category}
                                             </span>
                                         ) : <span className="text-gray-400 dark:text-gray-500">-</span>}
                                     </td>

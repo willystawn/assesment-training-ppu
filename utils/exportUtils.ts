@@ -1,7 +1,7 @@
 
 
 import * as XLSX from 'https://esm.sh/xlsx';
-import { LeaderboardEntry, Participant, MasterTask, Training, DetailedTask, ParticipantRole } from '../types';
+import { LeaderboardEntry, Participant, MasterTask, Training, DetailedTask, ParticipantRole, MasterTaskData } from '../types';
 import { getCompletedTasksByParticipants } from '../services/supabase';
 
 export const exportLeaderboardToExcel = async (
@@ -152,6 +152,7 @@ export const exportParticipantReportToExcel = (
     const tasksData = detailedTasks.map(task => ({
         'Hari Ke-': task.day_number,
         'Backlog': task.backlog || '-',
+        'Kategori': task.category || '-',
         'User Story': task.user_story,
         'Target Poin': task.target_points,
         'Status': task.status,
@@ -161,7 +162,7 @@ export const exportParticipantReportToExcel = (
     if (tasksData.length > 0) {
         const wsTasks = XLSX.utils.json_to_sheet(tasksData);
         wsTasks['!cols'] = [
-            { wch: 10 }, { wch: 20 }, { wch: 50 },
+            { wch: 10 }, { wch: 20 }, { wch: 20 }, { wch: 50 },
             { wch: 15 }, { wch: 15 }, { wch: 20 }
         ];
         XLSX.utils.book_append_sheet(wb, wsTasks, 'Rincian Task');
@@ -172,12 +173,20 @@ export const exportParticipantReportToExcel = (
 };
 
 export const exportMasterTasksToExcel = (tasks: MasterTask[]) => {
-    const dataToExport = tasks.map(({ id, created_at, ...rest }) => rest);
+    const dataToExport = tasks.map(task => ({
+        day_number: task.day_number,
+        backlog: task.backlog || '',
+        category: task.category || '',
+        user_story: task.user_story,
+        role: task.role,
+        target_points: task.target_points,
+    }));
     const ws = XLSX.utils.json_to_sheet(dataToExport);
 
     ws['!cols'] = [
         { wch: 10 }, // day_number
         { wch: 25 }, // backlog
+        { wch: 25 }, // category
         { wch: 50 }, // user_story
         { wch: 20 }, // role
         { wch: 15 }, // target_points
@@ -189,10 +198,11 @@ export const exportMasterTasksToExcel = (tasks: MasterTask[]) => {
 };
 
 export const downloadMasterTaskSample = () => {
-    const sampleData = [
+    const sampleData: (Omit<MasterTaskData, 'role'> & { role: string })[] = [
         {
             day_number: 1,
             backlog: "Otentikasi",
+            category: "Fundamental",
             user_story: "Sebagai pengguna, saya ingin bisa login ke aplikasi.",
             role: ParticipantRole.FRONTEND,
             target_points: 10
@@ -200,6 +210,7 @@ export const downloadMasterTaskSample = () => {
         {
             day_number: 1,
             backlog: "Otentikasi",
+            category: "API",
             user_story: "Membuat endpoint API untuk login.",
             role: ParticipantRole.BACKEND,
             target_points: 10
@@ -207,15 +218,17 @@ export const downloadMasterTaskSample = () => {
         {
             day_number: 2,
             backlog: "Dashboard",
+            category: "UI/UX",
             user_story: "Menampilkan data statistik di halaman utama.",
             role: ParticipantRole.FRONTEND,
             target_points: 15
         }
     ];
-    const ws = XLSX.utils.json_to_sheet(sampleData);
+    const ws = XLSX.utils.json_to_sheet(sampleData, {header: ["day_number", "backlog", "category", "user_story", "role", "target_points"]});
 
     ws['!cols'] = [
-        { wch: 10 },
+        { wch: 12 },
+        { wch: 25 },
         { wch: 25 },
         { wch: 50 },
         { wch: 20 },

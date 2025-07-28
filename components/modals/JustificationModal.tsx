@@ -16,24 +16,21 @@ interface JustificationModalProps {
 
 const JustificationModal: React.FC<JustificationModalProps> = ({ isOpen, onClose, onSubmit, initialData }) => {
   const [role, setRole] = useState<ParticipantRole>(ParticipantRole.FRONTEND);
-  const [minTasks, setMinTasks] = useState(0);
-  const [maxTasks, setMaxTasks] = useState(0);
-  const [score, setScore] = useState(0);
+  const [rawScore, setRawScore] = useState(0);
+  const [convertedScore, setConvertedScore] = useState(0);
   const [description, setDescription] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
     if (initialData) {
       setRole(initialData.role);
-      setMinTasks(initialData.min_tasks);
-      setMaxTasks(initialData.max_tasks);
-      setScore(initialData.score);
+      setRawScore(initialData.min_tasks); // Use min_tasks as the raw score
+      setConvertedScore(initialData.score);
       setDescription(initialData.description);
     } else {
       setRole(ParticipantRole.FRONTEND);
-      setMinTasks(0);
-      setMaxTasks(0);
-      setScore(0);
+      setRawScore(0);
+      setConvertedScore(0);
       setDescription('');
     }
   }, [initialData, isOpen]);
@@ -43,9 +40,9 @@ const JustificationModal: React.FC<JustificationModalProps> = ({ isOpen, onClose
     setIsSubmitting(true);
     await onSubmit({
       role,
-      min_tasks: Number(minTasks),
-      max_tasks: Number(maxTasks),
-      score: Number(score),
+      min_tasks: Number(rawScore),
+      max_tasks: Number(rawScore), // Set max_tasks same as min_tasks for direct mapping
+      score: Number(convertedScore),
       description,
     });
     setIsSubmitting(false);
@@ -53,7 +50,7 @@ const JustificationModal: React.FC<JustificationModalProps> = ({ isOpen, onClose
   };
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title={initialData ? 'Edit Justifikasi Task' : 'Tambah Justifikasi Task'}>
+    <Modal isOpen={isOpen} onClose={onClose} title={initialData ? 'Edit Aturan Konversi' : 'Tambah Aturan Konversi'}>
       <form onSubmit={handleSubmit} className="space-y-4">
         <Select
           label="Posisi"
@@ -68,40 +65,32 @@ const JustificationModal: React.FC<JustificationModalProps> = ({ isOpen, onClose
         </Select>
         <div className="grid grid-cols-2 gap-4">
             <Input
-              label="Min Task Selesai"
-              id="min-tasks"
+              label="Skor Mentah (Jml Task)"
+              id="raw-score"
               type="number"
-              value={minTasks}
-              onChange={(e) => setMinTasks(Number(e.target.value))}
+              value={rawScore}
+              onChange={(e) => setRawScore(Number(e.target.value))}
               required
               min="0"
             />
             <Input
-              label="Maks Task Selesai"
-              id="max-tasks"
+              label="Nilai Konversi"
+              id="converted-score"
               type="number"
-              value={maxTasks}
-              onChange={(e) => setMaxTasks(Number(e.target.value))}
+              value={convertedScore}
+              onChange={(e) => setConvertedScore(Number(e.target.value))}
               required
               min="0"
             />
         </div>
         <Input
-            label="Poin / Nilai"
-            id="score"
-            type="number"
-            value={score}
-            onChange={(e) => setScore(Number(e.target.value))}
-            required
-            min="0"
-        />
-        <Input
-          label="Deskripsi"
+          label="Deskripsi / Kategori"
           id="description"
           type="text"
           value={description}
           onChange={(e) => setDescription(e.target.value)}
           required
+          placeholder="e.g. Sangat Baik, Baik, Kurang"
         />
         <div className="flex justify-end space-x-2 pt-4">
           <Button type="button" variant="secondary" onClick={onClose}>Batal</Button>

@@ -1,5 +1,4 @@
 
-
 import { createClient } from '@supabase/supabase-js';
 import { Training, TrainingData, Participant, ParticipantData, MasterTask, MasterTaskData, CompletedTask, CompletedTaskData, ParticipantRole, Justification, JustificationData, FinalJustification, FinalJustificationData, ParticipantScore, ParticipantScoreData } from '../types';
 
@@ -8,31 +7,24 @@ export type Database = {
     Tables: {
       trainings: {
         Row: Training;
-        Insert: TrainingData;
       };
       participants: {
         Row: Participant;
-        Insert: ParticipantData;
       };
       master_tasks: {
         Row: MasterTask;
-        Insert: MasterTaskData;
       };
       completed_tasks: {
         Row: CompletedTask;
-        Insert: CompletedTaskData;
       };
       justifications: {
         Row: Justification;
-        Insert: JustificationData;
       };
       final_justifications: {
         Row: FinalJustification;
-        Insert: FinalJustificationData;
       };
       participant_scores: {
         Row: ParticipantScore;
-        Insert: ParticipantScoreData;
       };
     };
     Views: {
@@ -44,7 +36,6 @@ export type Database = {
   };
 }
 
-
 // IMPORTANT: The user must configure these environment variables.
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
@@ -52,7 +43,6 @@ const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 if (supabaseUrl === 'your-supabase-url' || supabaseAnonKey === 'your-supabase-anon-key') {
     console.warn("Supabase URL or Anon Key is not configured. Please set SUPABASE_URL and SUPABASE_ANON_KEY environment variables.");
 }
-
 
 export const supabase = createClient<Database>(supabaseUrl, supabaseAnonKey);
 

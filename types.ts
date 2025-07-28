@@ -38,6 +38,7 @@ export interface MasterTaskData {
   user_story: string;
   role: ParticipantRole;
   target_points: number;
+  category: string;
 }
 
 export interface MasterTask {
@@ -48,6 +49,7 @@ export interface MasterTask {
   user_story: string;
   role: ParticipantRole;
   target_points: number;
+  category: string;
 }
 
 export interface CompletedTaskData {
@@ -135,6 +137,7 @@ export interface DetailedTask {
   user_story: string;
   role: ParticipantRole;
   target_points: number;
+  category: string;
   status: 'Tepat Waktu' | 'Terlambat' | 'Belum Selesai';
   completionDate?: string | null;
 }

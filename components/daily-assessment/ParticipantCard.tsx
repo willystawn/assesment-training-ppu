@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { Participant, MasterTask, CompletedTask } from '../../types';
 import Card from '../ui/Card';
 import InfoMessage from './InfoMessage';
@@ -8,6 +8,7 @@ import ClipboardListIcon from '../icons/ClipboardListIcon';
 import Avatar from '../common/Avatar';
 import { getBacklogColor } from '../../utils/colors';
 import CheckIcon from '../icons/CheckIcon';
+import CalendarDaysIcon from '../icons/CalendarDaysIcon';
 
 interface ParticipantCardProps {
     participant: Participant;
@@ -31,6 +32,30 @@ const ParticipantCard: React.FC<ParticipantCardProps> = ({
     const [confirmation, setConfirmation] = useState<{ isOpen: boolean; onConfirm: () => void; } | null>(null);
     const [isConfirming, setIsConfirming] = useState(false);
 
+    const groupedTasks = useMemo(() => {
+        const groups: { [backlog: string]: { [userStory: string]: MasterTask[] } } = {};
+
+        for (const task of tasksForDay) {
+            const backlogKey = task.backlog || 'Task Lainnya'; // Group tasks without a backlog
+            const userStoryKey = task.user_story;
+
+            if (!groups[backlogKey]) {
+                groups[backlogKey] = {};
+            }
+            if (!groups[backlogKey][userStoryKey]) {
+                groups[backlogKey][userStoryKey] = [];
+            }
+            groups[backlogKey][userStoryKey].push(task);
+        }
+        
+        const sortedGroups: { [backlog: string]: { [userStory: string]: MasterTask[] } } = {};
+        Object.keys(groups).sort().forEach(backlogKey => {
+            sortedGroups[backlogKey] = groups[backlogKey];
+        });
+
+        return sortedGroups;
+    }, [tasksForDay]);
+
     const handleTaskCheckboxChange = (taskId: string, isChecked: boolean, e: React.ChangeEvent<HTMLInputElement>) => {
         if (isChecked) {
             const alreadyCompleted = completedTasks.some(ct => ct.participant_id === participant.id && ct.task_id === taskId);
@@ -53,6 +78,75 @@ const ParticipantCard: React.FC<ParticipantCardProps> = ({
         }
     };
     
+    const renderCardContent = () => {
+        if (dayNumber === -1) {
+            return <div className="flex-grow flex items-center justify-center"><InfoMessage icon={<ClipboardListIcon />} title="Di Luar Periode Training">Tanggal penilaian tidak termasuk jadwal.</InfoMessage></div>;
+        }
+        if (dayNumber === -2) {
+             return <div className="flex-grow flex items-center justify-center"><InfoMessage icon={<CalendarDaysIcon />} title="Hari Libur">Hari Sabtu & Minggu tidak termasuk hari kerja.</InfoMessage></div>;
+        }
+        if (tasksForDay.length === 0) {
+            return <div className="flex-grow flex items-center justify-center"><InfoMessage icon={<ClipboardListIcon />} title="Tidak Ada Task">Tidak ada task untuk posisi ini pada hari ini.</InfoMessage></div>;
+        }
+        
+        return (
+            <div className="space-y-4">
+                {Object.entries(groupedTasks).map(([backlog, userStories]) => (
+                    <div key={backlog} className="space-y-3">
+                        <div className={`p-2 rounded-md ${getBacklogColor(backlog)}`}>
+                            <h4 className="font-bold text-base">{backlog}</h4>
+                        </div>
+                        {Object.entries(userStories).map(([userStory, tasks]) => (
+                            <div key={userStory} className="pl-4 border-l-2 border-gray-200 dark:border-gray-600 ml-2 space-y-2">
+                                <p className="text-sm text-gray-700 dark:text-gray-300 font-medium">{userStory}</p>
+                                <div className="space-y-2">
+                                    {tasks.map(masterTask => {
+                                        const isCompleted = completedTasks.some(ct => ct.participant_id === participant.id && ct.task_id === masterTask.id);
+                                        return (
+                                            <label
+                                                key={masterTask.id}
+                                                htmlFor={`task-${participant.id}-${masterTask.id}`}
+                                                className={`relative block p-3 border rounded-lg transition-all duration-300 cursor-pointer ${
+                                                    isCompleted
+                                                    ? 'bg-emerald-50 border-emerald-300 dark:bg-emerald-900/40 dark:border-emerald-700'
+                                                    : 'bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 hover:bg-gray-50 hover:border-indigo-400 dark:hover:bg-gray-700/50'
+                                                }`}
+                                            >
+                                                <div className="flex items-center gap-4">
+                                                    <input
+                                                        id={`task-${participant.id}-${masterTask.id}`}
+                                                        type="checkbox"
+                                                        checked={isCompleted}
+                                                        onChange={(e) => handleTaskCheckboxChange(masterTask.id, e.target.checked, e)}
+                                                        className="h-5 w-5 flex-shrink-0 rounded border-gray-300 text-indigo-600 focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:bg-gray-700 dark:border-gray-600 dark:focus:ring-offset-gray-800"
+                                                    />
+                                                    <div className="flex-grow">
+                                                        {masterTask.category ? (
+                                                            <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${getBacklogColor(masterTask.category)}`}>
+                                                                {masterTask.category}
+                                                            </span>
+                                                        ) : (
+                                                            <span className="text-sm text-gray-500 dark:text-gray-400">Task</span>
+                                                        )}
+                                                    </div>
+                                                </div>
+                                                {isCompleted && (
+                                                    <div className="absolute top-2 right-2 text-emerald-600 dark:text-emerald-400 opacity-70">
+                                                        <CheckIcon className="w-4 h-4" />
+                                                    </div>
+                                                )}
+                                            </label>
+                                        )
+                                    })}
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                ))}
+            </div>
+        );
+    };
+
     return (
         <>
             <Card key={participant.id} className="overflow-hidden flex flex-col bg-gray-50 dark:bg-gray-800/50">
@@ -71,53 +165,7 @@ const ParticipantCard: React.FC<ParticipantCardProps> = ({
                 </div>
 
                 <div className="p-4 flex-grow flex flex-col">
-                    {dayNumber <= 0 && <div className="flex-grow flex items-center justify-center"><InfoMessage icon={<ClipboardListIcon />} title="Di Luar Periode Training">Tanggal penilaian tidak termasuk jadwal.</InfoMessage></div>}
-                    
-                    {dayNumber > 0 && tasksForDay.length === 0 && <div className="flex-grow flex items-center justify-center"><InfoMessage icon={<ClipboardListIcon />} title="Tidak Ada Task">Tidak ada task untuk posisi ini.</InfoMessage></div>}
-                    
-                    {tasksForDay.length > 0 && (
-                        <div className="space-y-3">
-                            {tasksForDay.map(masterTask => {
-                                const isCompleted = completedTasks.some(ct => ct.participant_id === participant.id && ct.task_id === masterTask.id);
-                                return (
-                                    <label
-                                        key={masterTask.id}
-                                        htmlFor={`task-${participant.id}-${masterTask.id}`}
-                                        className={`relative block p-4 border rounded-lg transition-all duration-300 cursor-pointer ${
-                                            isCompleted
-                                            ? 'bg-emerald-50 border-emerald-300 dark:bg-emerald-900/40 dark:border-emerald-700'
-                                            : 'bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 hover:bg-gray-50 hover:border-indigo-400 dark:hover:bg-gray-700/50'
-                                        }`}
-                                    >
-                                        <div className="flex items-start gap-4">
-                                            <input
-                                                id={`task-${participant.id}-${masterTask.id}`}
-                                                type="checkbox"
-                                                checked={isCompleted}
-                                                onChange={(e) => handleTaskCheckboxChange(masterTask.id, e.target.checked, e)}
-                                                className="h-6 w-6 mt-0.5 flex-shrink-0 rounded border-gray-300 text-indigo-600 focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:bg-gray-700 dark:border-gray-600 dark:focus:ring-offset-gray-800"
-                                            />
-                                            <div className="flex-grow pt-0.5">
-                                                <p className={`text-base transition-colors duration-150 ${isCompleted ? 'line-through text-gray-500 dark:text-gray-400' : 'text-gray-800 dark:text-gray-200'}`}>
-                                                    {masterTask.user_story}
-                                                </p>
-                                                {masterTask.backlog && (
-                                                    <span className={`mt-2 inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${getBacklogColor(masterTask.backlog)}`}>
-                                                        {masterTask.backlog}
-                                                    </span>
-                                                )}
-                                            </div>
-                                        </div>
-                                        {isCompleted && (
-                                            <div className="absolute top-2 right-2 text-emerald-600 dark:text-emerald-400 opacity-70">
-                                                <CheckIcon className="w-5 h-5" />
-                                            </div>
-                                        )}
-                                    </label>
-                                );
-                            })}
-                        </div>
-                    )}
+                    {renderCardContent()}
                 </div>
             </Card>
 

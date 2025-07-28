@@ -62,7 +62,8 @@ export const useDashboardData = () => {
         const masterTasksMap = new Map(masterTasks.map(mt => [mt.id, mt]));
 
         const getScoreForTaskCount = (count: number, role: ParticipantRole) => {
-            const rule = justifications.find(j => j.role === role && count >= j.min_tasks && count <= j.max_tasks);
+            // Use an exact match on min_tasks (re-purposed as raw_score)
+            const rule = justifications.find(j => j.role === role && count === j.min_tasks);
             return rule ? rule.score : 0;
         };
 

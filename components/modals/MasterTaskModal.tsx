@@ -22,6 +22,7 @@ const MasterTaskModal: React.FC<MasterTaskModalProps> = ({ isOpen, onClose, onSu
   const [userStory, setUserStory] = useState('');
   const [role, setRole] = useState<ParticipantRole>(ParticipantRole.FRONTEND);
   const [targetPoints, setTargetPoints] = useState(0);
+  const [category, setCategory] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
@@ -31,12 +32,14 @@ const MasterTaskModal: React.FC<MasterTaskModalProps> = ({ isOpen, onClose, onSu
       setUserStory(initialData.user_story);
       setRole(initialData.role);
       setTargetPoints(initialData.target_points);
+      setCategory(initialData.category || '');
     } else {
       setDayNumber(1);
       setBacklog('');
       setUserStory('');
       setRole(ParticipantRole.FRONTEND);
       setTargetPoints(0);
+      setCategory('');
     }
   }, [initialData, isOpen]);
 
@@ -50,6 +53,7 @@ const MasterTaskModal: React.FC<MasterTaskModalProps> = ({ isOpen, onClose, onSu
       user_story: userStory,
       role,
       target_points: Number(targetPoints),
+      category,
     });
     setIsSubmitting(false);
     onClose();
@@ -73,6 +77,14 @@ const MasterTaskModal: React.FC<MasterTaskModalProps> = ({ isOpen, onClose, onSu
           type="text"
           value={backlog}
           onChange={(e) => setBacklog(e.target.value)}
+        />
+        <Input
+          label="Kategori Task (Opsional)"
+          id="category"
+          type="text"
+          value={category}
+          onChange={(e) => setCategory(e.target.value)}
+          placeholder="e.g. Fundamental, Logic, UI/UX"
         />
         <Textarea
           label="User Story"
