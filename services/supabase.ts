@@ -1,4 +1,3 @@
-
 import { createClient } from '@supabase/supabase-js';
 import { Training, TrainingData, Participant, ParticipantData, MasterTask, MasterTaskData, CompletedTask, CompletedTaskData, ParticipantRole, Justification, JustificationData, FinalJustification, FinalJustificationData, ParticipantScore, ParticipantScoreData } from '../types';
 
@@ -7,24 +6,38 @@ export type Database = {
     Tables: {
       trainings: {
         Row: Training;
+        Insert: TrainingData;
+        Update: Partial<TrainingData>;
       };
       participants: {
         Row: Participant;
+        Insert: ParticipantData;
+        Update: Partial<ParticipantData>;
       };
       master_tasks: {
         Row: MasterTask;
+        Insert: MasterTaskData;
+        Update: Partial<MasterTaskData>;
       };
       completed_tasks: {
         Row: CompletedTask;
+        Insert: CompletedTaskData;
+        Update: Partial<CompletedTaskData>;
       };
       justifications: {
         Row: Justification;
+        Insert: JustificationData;
+        Update: Partial<JustificationData>;
       };
       final_justifications: {
         Row: FinalJustification;
+        Insert: FinalJustificationData;
+        Update: Partial<FinalJustificationData>;
       };
       participant_scores: {
         Row: ParticipantScore;
+        Insert: ParticipantScoreData;
+        Update: Partial<ParticipantScoreData>;
       };
     };
     Views: {
@@ -43,7 +56,6 @@ const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 if (supabaseUrl === 'your-supabase-url' || supabaseAnonKey === 'your-supabase-anon-key') {
     console.warn("Supabase URL or Anon Key is not configured. Please set SUPABASE_URL and SUPABASE_ANON_KEY environment variables.");
 }
-
 export const supabase = createClient<Database>(supabaseUrl, supabaseAnonKey);
 
 // Training Management
@@ -60,7 +72,7 @@ export const getTrainingById = async (id: string): Promise<Training | null> => {
 };
 
 export const createTraining = async (training: TrainingData): Promise<Training> => {
-    const { data, error } = await supabase.from('trainings').insert([training]).select();
+    const { data, error } = await supabase.from('trainings').insert(training).select();
     if (error) throw new Error(error.message);
     if (!data || data.length === 0) throw new Error("Failed to create training.");
     return data[0];
@@ -92,7 +104,7 @@ export const getParticipantById = async (id: string): Promise<Participant | null
 };
 
 export const createParticipant = async (participant: ParticipantData): Promise<Participant> => {
-    const { data, error } = await supabase.from('participants').insert([participant]).select();
+    const { data, error } = await supabase.from('participants').insert(participant).select();
     if (error) throw new Error(error.message);
     if (!data || data.length === 0) throw new Error("Failed to create participant.");
     return data[0];
@@ -118,7 +130,7 @@ export const getMasterTasks = async (): Promise<MasterTask[]> => {
 };
 
 export const createMasterTask = async (task: MasterTaskData): Promise<MasterTask> => {
-    const { data, error } = await supabase.from('master_tasks').insert([task]).select();
+    const { data, error } = await supabase.from('master_tasks').insert(task).select();
     if (error) throw new Error(error.message);
     if (!data || data.length === 0) throw new Error("Failed to create master task.");
     return data[0];
@@ -156,7 +168,7 @@ export const getCompletedTasksByParticipants = async (participantIds: string[]):
 };
 
 export const createCompletedTask = async (taskData: CompletedTaskData): Promise<CompletedTask> => {
-    const { data, error } = await supabase.from('completed_tasks').insert([taskData]).select();
+    const { data, error } = await supabase.from('completed_tasks').insert(taskData).select();
     if (error) throw new Error(error.message);
     if (!data || data.length === 0) throw new Error("Failed to create completed task.");
     return data[0];
@@ -176,10 +188,16 @@ export const getJustifications = async (): Promise<Justification[]> => {
 };
 
 export const createJustification = async (justification: JustificationData): Promise<Justification> => {
-    const { data, error } = await supabase.from('justifications').insert([justification]).select();
+    const { data, error } = await supabase.from('justifications').insert(justification).select();
     if (error) throw new Error(error.message);
     if (!data || data.length === 0) throw new Error("Failed to create justification.");
     return data[0];
+};
+
+export const createBulkJustifications = async (justifications: JustificationData[]): Promise<Justification[]> => {
+    const { data, error } = await supabase.from('justifications').insert(justifications).select();
+    if (error) throw new Error(error.message);
+    return data || [];
 };
 
 export const updateJustification = async (id: string, justification: Partial<JustificationData>): Promise<Justification> => {
@@ -202,7 +220,7 @@ export const getFinalJustifications = async (): Promise<FinalJustification[]> =>
 };
 
 export const createFinalJustification = async (justification: FinalJustificationData): Promise<FinalJustification> => {
-    const { data, error } = await supabase.from('final_justifications').insert([justification]).select();
+    const { data, error } = await supabase.from('final_justifications').insert(justification).select();
     if (error) throw new Error(error.message);
     if (!data || data.length === 0) throw new Error("Failed to create final justification.");
     return data[0];

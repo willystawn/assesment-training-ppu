@@ -20,6 +20,7 @@ const JustificationManagement: React.FC = () => {
         error,
         handleJustificationSubmit,
         handleDeleteJustification,
+        handleJustificationImport,
         handleFinalSubmit,
         handleDeleteFinal,
     } = useJustifications();
@@ -125,6 +126,7 @@ const JustificationManagement: React.FC = () => {
                             onAdd={() => openJustificationModal(null)}
                             onEdit={openJustificationModal}
                             onDelete={confirmDeleteJustification}
+                            onImport={handleJustificationImport}
                         />
                     ) : (
                         <FinalJustificationPanel 

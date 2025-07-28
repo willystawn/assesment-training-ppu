@@ -3,7 +3,8 @@ import { useState, useEffect, useCallback, useMemo } from 'react';
 import { Justification, JustificationData, FinalJustification, FinalJustificationData } from '../types';
 import {
   getJustifications, createJustification, updateJustification, deleteJustification,
-  getFinalJustifications, createFinalJustification, updateFinalJustification, deleteFinalJustification
+  getFinalJustifications, createFinalJustification, updateFinalJustification, deleteFinalJustification,
+  createBulkJustifications
 } from '../services/supabase';
 
 export const useJustifications = () => {
@@ -70,6 +71,12 @@ export const useJustifications = () => {
         await fetchJustifications();
     };
     
+    const handleJustificationImport = async (justifications: JustificationData[]) => {
+        if (justifications.length === 0) return;
+        await createBulkJustifications(justifications);
+        await fetchJustifications();
+    };
+    
     const handleFinalSubmit = async (data: FinalJustificationData, editingFinal: FinalJustification | null) => {
         if (editingFinal) {
             await updateFinalJustification(editingFinal.id, data);
@@ -91,6 +98,7 @@ export const useJustifications = () => {
         error,
         handleJustificationSubmit,
         handleDeleteJustification,
+        handleJustificationImport,
         handleFinalSubmit,
         handleDeleteFinal,
     };

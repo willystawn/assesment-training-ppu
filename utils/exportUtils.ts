@@ -1,7 +1,7 @@
 
 
 import * as XLSX from 'https://esm.sh/xlsx';
-import { LeaderboardEntry, Participant, MasterTask, Training, DetailedTask, ParticipantRole, MasterTaskData } from '../types';
+import { LeaderboardEntry, Participant, MasterTask, Training, DetailedTask, ParticipantRole, MasterTaskData, Justification } from '../types';
 import { getCompletedTasksByParticipants } from '../services/supabase';
 
 export const exportLeaderboardToExcel = async (
@@ -238,4 +238,66 @@ export const downloadMasterTaskSample = () => {
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, 'Sample Master Tasks');
     XLSX.writeFile(wb, 'Sample_Master_Tasks.xlsx');
+};
+
+export const exportJustificationsToExcel = (justifications: Justification[]) => {
+    const dataToExport = justifications.map(j => ({
+        skor_mentah: j.min_tasks,
+        nilai_konversi: j.score,
+        deskripsi: j.description,
+        role: j.role,
+    }));
+    const ws = XLSX.utils.json_to_sheet(dataToExport, { header: ["skor_mentah", "nilai_konversi", "deskripsi", "role"] });
+
+    ws['!cols'] = [
+        { wch: 15 }, // skor_mentah
+        { wch: 15 }, // nilai_konversi
+        { wch: 30 }, // deskripsi
+        { wch: 20 }, // role
+    ];
+
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'Justifikasi Task');
+    XLSX.writeFile(wb, 'Justifikasi_Task_Export.xlsx');
+};
+
+export const downloadJustificationSample = () => {
+    const sampleData = [
+        {
+            skor_mentah: 0,
+            nilai_konversi: 10,
+            deskripsi: "Sangat Kurang",
+            role: ParticipantRole.FRONTEND
+        },
+        {
+            skor_mentah: 1,
+            nilai_konversi: 13,
+            deskripsi: "Sangat Kurang",
+            role: ParticipantRole.FRONTEND
+        },
+        {
+            skor_mentah: 10,
+            nilai_konversi: 33,
+            deskripsi: "Kurang",
+            role: ParticipantRole.BACKEND
+        },
+        {
+            skor_mentah: 11,
+            nilai_konversi: 35,
+            deskripsi: "Kurang",
+            role: ParticipantRole.BACKEND
+        }
+    ];
+    const ws = XLSX.utils.json_to_sheet(sampleData);
+
+    ws['!cols'] = [
+        { wch: 15 },
+        { wch: 15 },
+        { wch: 30 },
+        { wch: 20 },
+    ];
+    
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'Sample Justifikasi Task');
+    XLSX.writeFile(wb, 'Sample_Justifikasi_Task.xlsx');
 };
